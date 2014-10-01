@@ -10,6 +10,7 @@ from tkMessageBox import showerror
 import os
 import csv
 import win32com.client as win32
+from mytools import timer
 
 
 def geodata(geodata_name):
@@ -159,16 +160,28 @@ def process_files(geodata_name, inp_dict):
     except UnicodeDecodeError:
         showerror("Ошибка кодирования", "Файл данных должен быть закодирован в utf-8")
         data = geodata(askopenfilenames(initialdir=os.path.abspath(os.getcwd()), filetypes=[("Файл данных txt", ".txt")], title="Выберите файл данных txt")[0])
+
+
     for book in input_paths:
         book_flag = False
-        with open_workbook(book, on_demand=True, formatting_info=True) as rb:
+        with open_workbook(book, formatting_info=True) as rb:
             header = False
             wb = copy(rb)
-            for numb, sheet in enumerate(rb.sheets()):
-                for row in range(sheet.nrows):
+        for numb, sheet in enumerate(rb.sheets()):
+            column = "False"
+            for row in range(sheet.nrows):
+                if column != "False":
+                    for data_row in data:
+                        if sheet.cell(row, col).value == data_row[0]:
+                            sheet_wb = wb.get_sheet(numb)
+                            sheet_wb.write(row, sheet.ncols, data_row[1])
+                            sheet_wb.write(row, sheet.ncols+1, data_row[2])
+                            break
+                else:
                     for col in range(sheet.ncols):
                         for data_row in data:
                             if sheet.cell(row, col).value == data_row[0]:
+                                column = col
                                 book_flag = True
                                 sheet_wb = wb.get_sheet(numb)
                                 sheet_wb.write(row, sheet.ncols, data_row[1])
@@ -188,6 +201,7 @@ def process_files(geodata_name, inp_dict):
             inp_dict["out"].append(f_out)
     return inp_dict
 
+@timer()
 def main():
     geodata_name = "data.txt"
     inp_dict = separate(get_input_name())
