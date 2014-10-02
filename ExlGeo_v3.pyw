@@ -9,8 +9,7 @@ from tkFileDialog import askopenfilenames
 from tkMessageBox import showerror
 import os
 import csv
-import win32com.client as win32
-from mytools import timer
+from win32com.client.gencache import EnsureDispatch
 
 
 def geodata(geodata_name):
@@ -104,7 +103,7 @@ def convert_xls_to_xlsx(inp_dict):
     """
     if inp_dict["out"]:
         for fname in inp_dict["out"]:
-            excel = win32.gencache.EnsureDispatch('Excel.Application')
+            excel = EnsureDispatch('Excel.Application')
             fname = os.path.abspath(fname.encode("utf-8"))
             fname = os.path.abspath(fname.decode("utf-8"))
             wb = excel.Workbooks.Open(fname)
@@ -127,7 +126,7 @@ def convert_xlsx_to_xls(inp_dict):
         for fname in inp_dict[".xlsx"]:
             fname = os.path.abspath(fname.encode("utf-8"))
             fname = os.path.abspath(fname.decode("utf-8"))
-            excel = win32.gencache.EnsureDispatch('Excel.Application')
+            excel = EnsureDispatch('Excel.Application')
             wb = excel.Workbooks.Open(fname)
             excel.DisplayAlerts = False
             wb.SaveAs(fname[:-1], FileFormat=56)    #FileFormat = 51 is for .xlsx extension
@@ -172,7 +171,7 @@ def process_files(geodata_name, inp_dict):
             for row in range(sheet.nrows):
                 if column != "False":
                     for data_row in data:
-                        if sheet.cell(row, col).value == data_row[0]:
+                        if sheet.cell(row, column).value == data_row[0]:
                             sheet_wb = wb.get_sheet(numb)
                             sheet_wb.write(row, sheet.ncols, data_row[1])
                             sheet_wb.write(row, sheet.ncols+1, data_row[2])
@@ -201,7 +200,6 @@ def process_files(geodata_name, inp_dict):
             inp_dict["out"].append(f_out)
     return inp_dict
 
-@timer()
 def main():
     geodata_name = "data.txt"
     inp_dict = separate(get_input_name())
