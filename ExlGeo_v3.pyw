@@ -37,7 +37,7 @@ def get_input_name():
     Set the Excel or CVS files for conversion
     :return: List of paths to the opened files
     """
-    xlsTypes = [("Файлы Excel или csv", ".xls .csv .xlsx")]
+    xlsTypes = [("Файлы Excel или csv", ".xls .xlsx")]
     return askopenfilenames(initialdir=os.path.abspath(os.getcwd()), filetypes=xlsTypes, title="Выберите файлы Excel или CSV")
 
 def separate(input_paths):
@@ -203,12 +203,11 @@ def process_files(geodata_name, inp_dict):
 def main():
     geodata_name = "data.txt"
     inp_dict = separate(get_input_name())
-    inp_dict = check_for_csv(inp_dict)
+    # inp_dict = check_for_csv(inp_dict)
     inp_dict = convert_xlsx_to_xls(inp_dict)
     inp_dict = process_files(geodata_name, inp_dict)
     inp_dict = convert_xls_to_xlsx(inp_dict)
     delete_xls(inp_dict)
-
 
 
 if __name__ == '__main__':
